@@ -1,6 +1,9 @@
 // ignore_for_file: prefer_const_constructors
 
+import 'package:edukasiapp_tim2/berita/PageDetailBerita.dart';
+import 'package:edukasiapp_tim2/model/ModelBerita.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
 void main() {
   runApp(const MyApp());
@@ -15,21 +18,6 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a purple toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.pinkAccent),
         useMaterial3: true,
       ),
@@ -40,23 +28,52 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class PageUtama extends StatelessWidget {
+class PageUtama extends StatefulWidget {
   const PageUtama({super.key});
+
+  @override
+  State<PageUtama> createState() => _PageUtamaState();
+}
+
+class _PageUtamaState extends State<PageUtama> {
+
+  String? userName;
+
+  Future<List<Datum>?> getBerita() async{
+    try{
+      http.Response res = await http.get(Uri.parse('http://192.168.1.4/edukasiDb/getBerita.php'));
+      return modelBeritaFromJson(res.body).data;
+    }catch(e){
+      setState(() {
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(e.toString()))
+        );
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return  Scaffold(
       appBar: AppBar(
         title: Text('Edukasi App - Tim 2'),
-        backgroundColor: Colors.purple,
+        backgroundColor: Colors.pink,
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.search),
+            onPressed: (){
+              
+            },
+          ),
+        ],
       ),
       drawer: SizedBox(
         width: 200,
         child: Drawer(
           child: ListView(
             children: [
-              const UserAccountsDrawerHeader(accountName: Text('Rizki Syaputra'),
-                  accountEmail: Text('rizki@udacoding.id'),
+              const UserAccountsDrawerHeader(accountName: Text('Ahmad Givantri Haykal'),
+                  accountEmail: Text('haykalhaykal@gmail.com'),
                   currentAccountPicture: CircleAvatar(
                     radius: 55,
                     child: Icon(
@@ -79,20 +96,87 @@ class PageUtama extends StatelessWidget {
                  
                 },
               ),
+              ListTile(
+                title: const Text("Gallery Foto"),
+                onTap: (){
+                 
+                },
+              ),
             ],
           ),
         ),
       ),
 
-      body: Center(
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: const [
-            Icon(Icons.person, size: 45,color: Colors.red,),
-            Icon(Icons.newspaper, size: 45,color: Colors.red,),
-          ],
+      body: Padding(
+        padding: EdgeInsets.all(8.0),
+        child: Center(
+          child: FutureBuilder(
+            future: getBerita(),
+            builder: (BuildContext context, AsyncSnapshot<List<Datum>?> snapshot){
+              if(snapshot.hasData){
+                return ListView.builder(
+                  itemCount: snapshot.data?.length,
+                  itemBuilder: (context, index){
+                    Datum? data = snapshot.data?[index];
+                    return Padding(
+                      padding: EdgeInsets.all(5.0),
+                      child: GestureDetector(
+                        onTap: (){
+                          Navigator.push(context, MaterialPageRoute(builder: (context)
+                            => PageDetailBerita(data)));
+                        },
+                      child: Card(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                             Padding(
+                                padding: EdgeInsets.all(8),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(10),
+                                  child: Image.network('http://192.168.1.4/edukasiDb/gambar_berita/${data?.gambarBerita}',
+                                    fit: BoxFit.fill,
+                                  ),
+                                ),
+                              ),
+                              ListTile(
+                                title: Text("${data?.judul}",
+                                  style: TextStyle(
+                                    color: Colors.red,
+                                    fontWeight: FontWeight.bold
+                                  ),
+                                ),
+                                subtitle: Text("${data?.isiBerita}",
+                                  maxLines: 2,
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    color: Colors.black54
+                                  ),
+                                ),
+
+                              )
+                            ],
+                        )
+                      ),
+                      )
+                    );
+                  },
+                );
+              }else if(snapshot.hasError){
+                return Center(
+                  child: Text(snapshot.error.toString()),
+                );
+              }else{
+                return Center(
+                  child: CircularProgressIndicator(
+                    color: Colors.orange,
+                  )
+                );
+              }
+            }
         ),
-      ),
+      )
+    )
     );
   }
+  
 }
