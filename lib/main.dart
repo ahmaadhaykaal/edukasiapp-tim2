@@ -2,6 +2,7 @@
 
 import 'package:edukasiapp_tim2/berita/PageDetailBerita.dart';
 import 'package:edukasiapp_tim2/model/ModelBerita.dart';
+import 'package:edukasiapp_tim2/screen_page/page_list_pegawai.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
@@ -41,7 +42,7 @@ class _PageUtamaState extends State<PageUtama> {
 
   Future<List<Datum>?> getBerita() async{
     try{
-      http.Response res = await http.get(Uri.parse('http://192.168.1.4/edukasiDb/getBerita.php'));
+      http.Response res = await http.get(Uri.parse('http://192.168.100.6/edukasiDb/getBerita.php'));
       return modelBeritaFromJson(res.body).data;
     }catch(e){
       setState(() {
@@ -56,8 +57,10 @@ class _PageUtamaState extends State<PageUtama> {
   Widget build(BuildContext context) {
     return  Scaffold(
       appBar: AppBar(
-        title: Text('Edukasi App - Tim 2'),
+        title: Text('Edukasi App - Tim 2',
+          style: TextStyle(color: Colors.white),),
         backgroundColor: Colors.pink,
+        iconTheme: IconThemeData(color: Colors.white),
         actions: <Widget>[
           IconButton(
             icon: Icon(Icons.search),
@@ -93,7 +96,9 @@ class _PageUtamaState extends State<PageUtama> {
               ListTile(
                 title: const Text("Data Pegawai"),
                 onTap: (){
-                 
+                 Navigator.push(context, MaterialPageRoute(builder: (context)
+                        => PageListPegawai()
+                      ));
                 },
               ),
               ListTile(
@@ -133,7 +138,7 @@ class _PageUtamaState extends State<PageUtama> {
                                 padding: EdgeInsets.all(8),
                                 child: ClipRRect(
                                   borderRadius: BorderRadius.circular(10),
-                                  child: Image.network('http://192.168.1.4/edukasiDb/gambar_berita/${data?.gambarBerita}',
+                                  child: Image.network('http://192.168.100.6/edukasiDb/gambar_berita/${data?.gambarBerita}',
                                     fit: BoxFit.fill,
                                   ),
                                 ),
