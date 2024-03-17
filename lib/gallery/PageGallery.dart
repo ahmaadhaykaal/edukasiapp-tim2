@@ -12,6 +12,8 @@ class GalleryPage extends StatelessWidget {
     'https://i.ytimg.com/vi/-3cdpWbUdhc/mqdefault.jpg',
     'https://i.pinimg.com/236x/2e/ed/30/2eed301af40aebd2d77cff2fa3d6eeee.jpg',
     'https://i.kym-cdn.com/entries/icons/facebook/000/048/010/side_eye_cat.jpg',
+    'https://uploads.dailydot.com/2018/10/olli-the-polite-cat.jpg?q=65&auto=format&w=1600&ar=2:1&fit=crop',
+    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS-46Ct1qQe-7nKUI93ke7QDxFIZb-wE6DxqQ&usqp=CAU',
   ];
 
   @override
