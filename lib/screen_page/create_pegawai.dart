@@ -20,7 +20,7 @@ class _createPegawaiState extends State<createPegawai> {
 
   Future _simpan() async {
     final response = await http.post(
-        Uri.parse('http://192.168.100.6/edukasiDb/createPegawai.php'),
+        Uri.parse('http://192.168.1.4/edukasiDb/createPegawai.php'),
         body: {
           "nama": nama.text,
           "nobp": nobp.text,

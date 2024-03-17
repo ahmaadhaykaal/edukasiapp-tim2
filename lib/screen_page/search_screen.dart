@@ -13,7 +13,7 @@ class PageListDataPegawai extends StatefulWidget {
 
 class _PageListDataPegawaiState extends State<PageListDataPegawai> {  
   Future<void> getDataPegawai() async {
-    final response = await http.get(Uri.parse('http://192.168.100.6/edukasiDb/getPegawai.php'));
+    final response = await http.get(Uri.parse('http://192.168.1.4/edukasiDb/getPegawai.php'));
 
     if (response.statusCode == 200) {
       final Map<String, dynamic> responseData = json.decode(response.body);

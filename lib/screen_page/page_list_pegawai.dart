@@ -18,7 +18,7 @@ class _PageListPegawaiState extends State<PageListPegawai> {
   Future<List<Datum>?> getPegawai() async {
     try {
       http.Response res = await http
-          .get(Uri.parse('http://192.168.100.6/edukasiDb/getPegawai.php'));
+          .get(Uri.parse('http://192.168.1.4/edukasiDb/getPegawai.php'));
       return modelPegawaiFromJson(res.body).data;
     } catch (e) {
       setState(() {
@@ -31,7 +31,7 @@ class _PageListPegawaiState extends State<PageListPegawai> {
   Future _delete(String id) async {
     try {
       final response = await http.post(
-          Uri.parse('http://192.168.100.6/edukasiDb/deletePegawai.php'),
+          Uri.parse('http://192.168.1.4/edukasiDb/deletePegawai.php'),
           body: {
             "id": id,
           });

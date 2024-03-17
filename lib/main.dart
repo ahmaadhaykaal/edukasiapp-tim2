@@ -1,6 +1,7 @@
 // ignore_for_file: prefer_const_constructors
 
 import 'package:edukasiapp_tim2/berita/PageDetailBerita.dart';
+import 'package:edukasiapp_tim2/gallery/PageGallery.dart';
 import 'package:edukasiapp_tim2/model/ModelBerita.dart';
 import 'package:edukasiapp_tim2/screen_page/page_list_pegawai.dart';
 import 'package:flutter/material.dart';
@@ -42,7 +43,7 @@ class _PageUtamaState extends State<PageUtama> {
 
   Future<List<Datum>?> getBerita() async{
     try{
-      http.Response res = await http.get(Uri.parse('http://192.168.100.6/edukasiDb/getBerita.php'));
+      http.Response res = await http.get(Uri.parse('http://192.168.1.4/edukasiDb/getBerita.php'));
       return modelBeritaFromJson(res.body).data;
     }catch(e){
       setState(() {
@@ -104,7 +105,9 @@ class _PageUtamaState extends State<PageUtama> {
               ListTile(
                 title: const Text("Gallery Foto"),
                 onTap: (){
-                 
+                 Navigator.push(context, MaterialPageRoute(builder: (context)
+                        => GalleryPage()
+                      ));
                 },
               ),
             ],
@@ -138,7 +141,7 @@ class _PageUtamaState extends State<PageUtama> {
                                 padding: EdgeInsets.all(8),
                                 child: ClipRRect(
                                   borderRadius: BorderRadius.circular(10),
-                                  child: Image.network('http://192.168.100.6/edukasiDb/gambar_berita/${data?.gambarBerita}',
+                                  child: Image.network('http://192.168.1.4/edukasiDb/gambar_berita/${data?.gambarBerita}',
                                     fit: BoxFit.fill,
                                   ),
                                 ),
