@@ -1,6 +1,7 @@
 // ignore_for_file: prefer_const_constructors
 
 import 'package:edukasiapp_tim2/berita/PageDetailBerita.dart';
+import 'package:edukasiapp_tim2/berita/PageSearchBerita.dart';
 import 'package:edukasiapp_tim2/gallery/PageGallery.dart';
 import 'package:edukasiapp_tim2/model/ModelBerita.dart';
 import 'package:edukasiapp_tim2/screen_page/page_list_pegawai.dart';
@@ -66,7 +67,10 @@ class _PageUtamaState extends State<PageUtama> {
           IconButton(
             icon: Icon(Icons.search),
             onPressed: (){
-              
+              Navigator.push(context, MaterialPageRoute(builder: ((context) {
+                return PageSearch();
+              }))
+              );
             },
           ),
         ],
