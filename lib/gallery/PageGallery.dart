@@ -102,21 +102,21 @@ class ZoomableImage extends StatelessWidget {
   }
 }
 
-
 class _GaleriPageState extends State<GaleriPage> {
   Future<List<Datum>?> getGaleri() async {
     // Endpoint API galeri
-    String apiUrl = 'http://192.168.1.4/edukasiDb/getGallery.php?data=galeri'; // Ganti dengan URL API yang sesuai
-    
+    String apiUrl =
+        'http://192.168.100.6/edukasiDb/getGallery.php?data=galeri'; // Ganti dengan URL API yang sesuai
+
     try {
       // Melakukan request HTTP GET ke API
       final response = await http.get(Uri.parse(apiUrl));
-      
+
       // Cek status kode response
       if (response.statusCode == 200) {
         // Parsing data JSON ke dalam objek ModelGaleri menggunakan modelGaleriFromJson
         List<Datum> galeriList = modelGaleriFromJson(response.body).data;
-        
+
         // Mengembalikan data galeri
         return galeriList;
       } else {
@@ -136,6 +136,7 @@ class _GaleriPageState extends State<GaleriPage> {
       appBar: AppBar(
         title: Text(
           'Galery',
+          style: TextStyle(color: Colors.white),
         ),
         backgroundColor: Colors.pink,
         iconTheme: IconThemeData(color: Colors.white),
@@ -147,12 +148,12 @@ class _GaleriPageState extends State<GaleriPage> {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(child: CircularProgressIndicator());
           }
-          
+
           // Tampilkan pesan jika terjadi error
           if (snapshot.hasError) {
             return Center(child: Text('Error: ${snapshot.error}'));
           }
-          
+
           // Tampilkan data galeri jika future selesai
           if (snapshot.hasData && snapshot.data != null) {
             List<Datum> galeri = snapshot.data!;
@@ -166,20 +167,23 @@ class _GaleriPageState extends State<GaleriPage> {
               itemBuilder: (BuildContext context, int index) {
                 return GestureDetector(
                     onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => ZoomableImage(imageUrl: 'http://192.168.1.4/edukasiDb/photo/${galeri[index].gambar}'),
-                    ),
-                  );
-                },child : Image.network(
-                  'http://192.168.1.4/edukasiDb/photo/${galeri[index].gambar}',
-                  fit: BoxFit.cover,
-                ));
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ZoomableImage(
+                              imageUrl:
+                                  'http://192.168.100.6/edukasiDb/photo/${galeri[index].gambar}'),
+                        ),
+                      );
+                    },
+                    child: Image.network(
+                      'http://192.168.100.6/edukasiDb/photo/${galeri[index].gambar}',
+                      fit: BoxFit.cover,
+                    ));
               },
             );
           }
-          
+
           // Tampilkan pesan jika tidak ada data galeri
           return Center(child: Text('No data available'));
         },

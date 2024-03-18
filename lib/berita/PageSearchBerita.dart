@@ -22,7 +22,8 @@ class _PageSearchState extends State<PageSearch> {
   }
 
   Future<void> fetchBerita() async {
-    final response = await http.get(Uri.parse('http://192.168.1.4/edukasiDb/getBerita.php'));
+    final response = await http
+        .get(Uri.parse('http://192.168.100.6/edukasiDb/getBerita.php'));
 
     if (response.statusCode == 200) {
       final Map<String, dynamic> responseData = json.decode(response.body);
@@ -39,7 +40,7 @@ class _PageSearchState extends State<PageSearch> {
     setState(() {
       _filteredBeritaList = _beritaList
           .where((judul) =>
-          judul['judul'].toLowerCase().contains(query.toLowerCase()))
+              judul['judul'].toLowerCase().contains(query.toLowerCase()))
           .toList();
     });
   }
@@ -48,8 +49,12 @@ class _PageSearchState extends State<PageSearch> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Cari Berita'),
+        title: Text(
+          'Cari Berita',
+          style: TextStyle(color: Colors.white),
+        ),
         backgroundColor: Colors.pink,
+        iconTheme: IconThemeData(color: Colors.white),
       ),
       body: Column(
         children: <Widget>[
@@ -70,7 +75,7 @@ class _PageSearchState extends State<PageSearch> {
             child: ListView.builder(
               itemCount: _filteredBeritaList.length,
               itemBuilder: (context, index) {
-                return Card( 
+                return Card(
                   child: ListTile(
                     title: Text(_filteredBeritaList[index]['judul']),
                   ),
