@@ -8,6 +8,7 @@ import 'package:edukasiapp_tim2/screen_page/page_list_pegawai.dart';
 import 'package:edukasiapp_tim2/screen_page/page_login.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   runApp(const MyApp());
@@ -29,6 +30,8 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       routes: <String, WidgetBuilder>{
         '/PageUtama': (BuildContext context) => new PageUtama(),
+        '/PageLogin': (BuildContext context) => new PageLogin(),
+        // '/PageListPegawai': (BuildContext context) => new PageListPegawai(),
       },
     );
   }
@@ -43,6 +46,23 @@ class PageUtama extends StatefulWidget {
 
 class _PageUtamaState extends State<PageUtama> {
   String? userName;
+
+  Future<bool> _checkLoginStatus() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    bool? isLoggedIn = prefs.getBool('isLoggedIn');
+    return isLoggedIn ?? false;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _checkLoginStatus().then((isLoggedIn) {
+      // Jika tidak login, arahkan ke halaman login
+      if (!isLoggedIn) {
+        Navigator.pushReplacementNamed(context, '/PageLogin');
+      }
+    });
+  }
 
   Future<List<Datum>?> getBerita() async {
     try {
@@ -95,18 +115,6 @@ class _PageUtamaState extends State<PageUtama> {
                     ),
                   ),
                 ),
-                // ListTile(
-                //   trailing: IconButton(
-                //     icon: Icon(FontAwesomeIcons.signOutAlt),
-                //     color: Colors.pink,
-                //     onPressed: () {
-                //       Navigator.pushAndRemoveUntil(
-                //           context,
-                //           MaterialPageRoute(builder: (context) => PageLogin()),
-                //           (route) => false);
-                //     },
-                //   ),
-                // ),
                 ListTile(
                   title: Text("Info Profile"),
                   onTap: () {},
@@ -131,11 +139,12 @@ class _PageUtamaState extends State<PageUtama> {
                   leading:
                       Icon(Icons.exit_to_app), // Ikon "exit" pada sisi kiri
                   title: Text('Logout'), // Teks untuk logout
-                  onTap: () {
-                    Navigator.pushAndRemoveUntil(
-                        context,
-                        MaterialPageRoute(builder: (context) => PageLogin()),
-                        (route) => false);
+                  onTap: () async {
+                    // Navigator.pushAndRemoveUntil(
+                    //     context,
+                    //     MaterialPageRoute(builder: (context) => PageLogin()),
+                    //     (route) => false);
+                    await _logout(context);
                   },
                 ),
               ],
@@ -211,4 +220,16 @@ class _PageUtamaState extends State<PageUtama> {
                   }),
             )));
   }
+  
+  Future<void> _logout(BuildContext context) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.remove('isLoggedIn');
+    await prefs.clear();
+
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => PageLogin()),
+    );
+  }
 }
+

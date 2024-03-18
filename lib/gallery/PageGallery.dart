@@ -20,9 +20,13 @@ class GalleryPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Gallery"),
-        backgroundColor: Colors.red,
+        title: const Text(
+          "Gallery",
+          style: TextStyle(color: Colors.white),
         ),
+        backgroundColor: Colors.red,
+        iconTheme: IconThemeData(color: Colors.white),
+      ),
       body: GridView.builder(
         physics: const BouncingScrollPhysics(
           parent: AlwaysScrollableScrollPhysics(),

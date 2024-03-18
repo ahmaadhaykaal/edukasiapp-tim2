@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:core';
 import 'package:edukasiapp_tim2/screen_page/page_list_pegawai.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -20,6 +21,8 @@ class _updatePegawaiState extends State<updatePegawai> {
   TextEditingController nohp = TextEditingController();
   TextEditingController email = TextEditingController();
   TextEditingController tgl_input = TextEditingController();
+  
+  RegExp emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
 
   Future _update() async {
     final response = await http.post(
@@ -33,9 +36,12 @@ class _updatePegawaiState extends State<updatePegawai> {
         });
 
     if (response.statusCode == 200) {
-      return true;
+      final responseData = jsonDecode(response.body);
+      final value = responseData['value'];
+
+        return value ?? 0;
     } else {
-      return false;
+      return 0;
     }
   }
 
@@ -122,8 +128,11 @@ class _updatePegawaiState extends State<updatePegawai> {
                 ),
                 validator: (value) {
                   if (value!.isEmpty) {
-                    return "Email tidak boleh kosong";
-                  }
+                          return "Email tidak boleh kosong";
+                        } else if (!emailRegex.hasMatch(value)) {
+                          return "format email salah. ex: ex@mail.com";
+                        }
+                        return null;
                 },
               ),
               SizedBox(
@@ -137,23 +146,34 @@ class _updatePegawaiState extends State<updatePegawai> {
                 onPressed: () {
                   if (formKey.currentState!.validate()) {
                     _update().then((value) {
-                      if (value) {
-                        final snackBar = SnackBar(
-                          content: const Text('Data Berhasil Diedit'),
+                      if (value == 1) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Berhasil edit pegawai!'),
+                            backgroundColor: Colors.green,
+                          ),
                         );
-                        ScaffoldMessenger.of(context).showSnackBar(snackBar);
-                      } else {
-                        final snackBar = SnackBar(
-                          content: const Text('Data Gagal Diedit'),
+                        Navigator.pushAndRemoveUntil(
+                            context,
+                            MaterialPageRoute(
+                                builder: ((context) => PageListPegawai())),
+                            (route) => false);
+                      } else if (value == 2) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('email telah digunakan. gagal edit pegawai'),
+                            backgroundColor: Colors.red,
+                          ),
                         );
-                        ScaffoldMessenger.of(context).showSnackBar(snackBar);
-                      }
+                      } else if (value == 0) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Gagal edit pegawai'),
+                            backgroundColor: Colors.deepOrange,
+                          ),
+                        );
+                      } else {}
                     });
-                    Navigator.pushAndRemoveUntil(
-                        context,
-                        MaterialPageRoute(
-                            builder: ((context) => PageListPegawai())),
-                        (route) => false);
                   }
                 },
                 child: Text(

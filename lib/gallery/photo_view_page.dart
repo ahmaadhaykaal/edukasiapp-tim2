@@ -19,6 +19,7 @@ class PhotoViewPage extends StatelessWidget {
       extendBodyBehindAppBar: true,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
+        iconTheme: IconThemeData(color: Colors.white),
         elevation: 0,
       ),
       body: PhotoViewGallery.builder(

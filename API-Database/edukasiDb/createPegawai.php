@@ -5,27 +5,32 @@
 
   include 'koneksi.php';
 
+  $response = array();
   // $id = $_POST['id'];
   $nama = $_POST['nama'];
   $nobp = $_POST['nobp'];
   $nohp = $_POST['nohp'];
   $email = $_POST['email'];
+  
+  $cek = "SELECT * FROM pegawai WHERE email = '$email'";
+	$result = mysqli_fetch_array(mysqli_query($koneksi, $cek));
 
-  $sql = "INSERT INTO pegawai (nama, nobp, nohp, email, tgl_input) VALUES ('$nama', '$nobp', '$nohp', '$email', NOW())"; 
-  $isSuccess = $koneksi->query($sql);
-
-  if ($isSuccess) {
-
-    // $result = mysqli_fetch_array(mysqli_query($koneksi));
-    $res['is_success'] = true;
-    $res['value'] = 1;
-    $res['message'] = "Berhasil tambah data pegawai";
-  } else {
-    $res['is_success'] = false;
-    $res['value'] = 0;
-    $res['message'] = "Gagal tambah data pegawai";
-  }
-  echo json_encode($res);
+  if(isset($result)){
+		$response['value'] = 2;
+		$response['message'] = "email telah digunakan";
+		echo json_encode($response);
+	} else {
+		$insert = "INSERT INTO pegawai (nama, nobp, nohp, email, tgl_input) VALUES ('$nama', '$nobp', '$nohp', '$email', NOW())";
+		if(mysqli_query($koneksi, $insert)){
+			$response['value'] = 1;
+			$response['message'] = "Berhasil tambah data pegawai";
+			echo json_encode($response);
+		} else {
+			$response['value'] = 0;
+			$response['message'] = "Gagal tambah data pegawai";
+			echo json_encode($response);
+		}
+	}
 
 
 ?>

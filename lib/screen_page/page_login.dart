@@ -1,6 +1,10 @@
+import 'dart:convert';
+
 import 'package:edukasiapp_tim2/screen_page/page_register.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class PageLogin extends StatefulWidget {
   const PageLogin({super.key});
@@ -14,20 +18,32 @@ class _PageLoginState extends State<PageLogin> {
   TextEditingController txtPassword = TextEditingController();
   GlobalKey<FormState> keyForm = GlobalKey<FormState>();
 
-  Future _login() async {
+  Future<int> _login() async {
     try {
-      final response = await http
-          .post(Uri.parse('http://192.168.100.6/edukasiDb/login.php'), body: {
-        "username": txtUsername.text,
-        "password": txtPassword.text,
-      });
+      final response = await http.post(
+        Uri.parse('http://192.168.100.6/edukasiDb/login.php'),
+        body: {
+          "username": txtUsername.text,
+          "password": txtPassword.text,
+        },
+      );
+
       if (response.statusCode == 200) {
-        return true;
-        // print(response.body);
+        final responseData = jsonDecode(response.body);
+        final loginStatus = responseData['value'];
+
+        if (loginStatus == 1) {
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        await prefs.setBool('isLoggedIn', true);
       }
-      return false;
+
+        return loginStatus ?? 0;
+      } else {
+        return 0;
+      }
     } catch (e) {
-      print(e);
+        print(e);
+        return 0;
     }
   }
 
@@ -105,19 +121,28 @@ class _PageLoginState extends State<PageLogin> {
                       MaterialButton(
                         onPressed: () {
                           if (keyForm.currentState?.validate() == true) {
-                            _login().then((loginSuccess) {
-                              if (loginSuccess) {
+                            _login().then((loginStatus) {
+                              if (loginStatus == 1) {
                                 Navigator.pushReplacementNamed(
                                     context, '/PageUtama');
                               } else {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
                                     content: Text(
-                                        'Login Failed'),
+                                        'Login failed. Please check your credentials.'),
                                     backgroundColor: Colors.deepOrange,
                                   ),
                                 );
                               }
+                            }).catchError((error) {
+                              print("Error during login: $error");
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                      'An error occurred during login. Please try again later.'),
+                                  backgroundColor: Colors.red,
+                                ),
+                              );
                             });
                           }
                         },
@@ -128,35 +153,34 @@ class _PageLoginState extends State<PageLogin> {
                       SizedBox(
                         height: 10,
                       ),
-                      TextButton(
-                        onPressed: () {
-                          Navigator.pushAndRemoveUntil(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => PageRegister()),
-                              (route) => false);
-                        },
-                        style: ButtonStyle(
-                          overlayColor:
-                              MaterialStateProperty.resolveWith<Color>(
-                                  (Set<MaterialState> states) {
-                            if (states.contains(MaterialState.pressed)) {
-                              // Warna ketika teks ditekan
-                              return Colors
-                                  .transparent; // Misalnya, transparent untuk menghilangkan warna overlay
-                            }
-                            // Warna default
-                            return Colors.transparent;
-                          }),
+                      RichText(
+                      text: TextSpan(
+                        text: 'Belum Punya Akun? ',
+                        style: TextStyle(
+                          fontSize: 11.0,
+                          color: Colors.black,
                         ),
-                        child: Text(
-                          'Belum Punya Akun? Silahkan Register', // Teks yang dapat diklik
-                          style: TextStyle(
-                            fontSize: 11.0,
-                            color: Colors.blue, // Warna teks
+                        children: <TextSpan>[
+                          TextSpan(
+                            text:
+                                'Silahkan Register',
+                            style: TextStyle(
+                              fontSize: 11.0,
+                              color: Colors.blue, // Warna teks kedua
+                            ),
+                            // event handler jika teks kedua ditekan
+                            recognizer: TapGestureRecognizer()
+                              ..onTap = () {
+                                Navigator.pushAndRemoveUntil(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => PageRegister()),
+                                    (route) => false);
+                              },
                           ),
-                        ),
+                        ],
                       ),
+                    ),
                     ],
                   ),
                 ),

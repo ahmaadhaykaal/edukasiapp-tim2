@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:core';
 import 'package:edukasiapp_tim2/screen_page/page_list_pegawai.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -17,8 +18,10 @@ class _createPegawaiState extends State<createPegawai> {
   TextEditingController nohp = TextEditingController();
   TextEditingController email = TextEditingController();
   TextEditingController tgl_input = TextEditingController();
+  
+  RegExp emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
 
-  Future _simpan() async {
+  Future<int> _simpan() async {
     final response = await http.post(
         Uri.parse('http://192.168.100.6/edukasiDb/createPegawai.php'),
         body: {
@@ -29,9 +32,12 @@ class _createPegawaiState extends State<createPegawai> {
         });
 
     if (response.statusCode == 200) {
-      return true;
+      final responseData = jsonDecode(response.body);
+      final value = responseData['value'];
+
+        return value ?? 0;
     } else {
-      return false;
+      return 0;
     }
   }
 
@@ -113,8 +119,11 @@ class _createPegawaiState extends State<createPegawai> {
                 ),
                 validator: (value) {
                   if (value!.isEmpty) {
-                    return "Email tidak boleh kosong";
-                  }
+                          return "Email tidak boleh kosong";
+                        } else if (!emailRegex.hasMatch(value)) {
+                          return "format email salah. ex: ex@mail.com";
+                        }
+                        return null;
                 },
               ),
               SizedBox(
@@ -128,23 +137,35 @@ class _createPegawaiState extends State<createPegawai> {
                 onPressed: () {
                   if (formKey.currentState!.validate()) {
                     _simpan().then((value) {
-                      if (value) {
-                        final snackBar = SnackBar(
-                          content: const Text('Data Berhasil Disimpan'),
+                      if (value == 1) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Berhasil tambah data pegawai!'),
+                            backgroundColor: Colors.green,
+                          ),
                         );
-                        ScaffoldMessenger.of(context).showSnackBar(snackBar);
-                      } else {
-                        final snackBar = SnackBar(
-                          content: const Text('Data Gagal Disimpan'),
+                        Navigator.pushAndRemoveUntil(
+                            context,
+                            MaterialPageRoute(
+                                builder: ((context) => PageListPegawai())),
+                            (route) => false);
+                      } else if (value == 2) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content:
+                                Text('email telah digunakan!'),
+                            backgroundColor: Colors.red,
+                          ),
                         );
-                        ScaffoldMessenger.of(context).showSnackBar(snackBar);
-                      }
+                      } else if (value == 0) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Gagal tambah data pegawai'),
+                            backgroundColor: Colors.deepOrange,
+                          ),
+                        );
+                      } else {}
                     });
-                    Navigator.pushAndRemoveUntil(
-                        context,
-                        MaterialPageRoute(
-                            builder: ((context) => PageListPegawai())),
-                        (route) => false);
                   }
                 },
                 child: Text(

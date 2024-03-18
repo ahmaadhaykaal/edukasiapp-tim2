@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:edukasiapp_tim2/main.dart';
 import 'package:edukasiapp_tim2/screen_page/create_pegawai.dart';
 import 'package:edukasiapp_tim2/screen_page/search_screen.dart';
 import 'package:flutter/material.dart';
@@ -48,6 +49,15 @@ class _PageListPegawaiState extends State<PageListPegawai> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(builder: (context) => PageUtama()),
+                (route) => false);
+          },
+        ),
         title: Text(
           'Data Pegawai',
           style: TextStyle(color: Colors.white),
@@ -103,19 +113,24 @@ class _PageListPegawaiState extends State<PageListPegawai> {
                           ListTile(
                             title: Text(
                               "${data?.nama}",
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
                               style: TextStyle(
                                   color: Colors.pink,
+                                  fontSize: 14,
                                   fontWeight: FontWeight.bold),
                             ),
                             subtitle: Text(
                               "${data?.email}",
                               maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
                               style: TextStyle(
-                                  fontSize: 15, color: Colors.black54),
+                                  fontSize: 12, color: Colors.black54),
                             ),
                             trailing: IconButton(
                               icon: Icon(Icons.delete),
                               color: Colors.pink,
+                              iconSize: 20,
                               onPressed: () {
                                 // Aksi yang dijalankan saat tombol hapus ditekan
                                 // _deleteItem(data);

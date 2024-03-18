@@ -1,4 +1,8 @@
+import 'dart:convert';
+import 'dart:core'; //validasi format email
+
 import 'package:edukasiapp_tim2/screen_page/page_login.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
@@ -16,19 +20,32 @@ class _PageRegisterState extends State<PageRegister> {
   TextEditingController txtFullName = TextEditingController();
   GlobalKey<FormState> keyForm = GlobalKey<FormState>();
 
-  Future _register() async {
-    final response = await http
-        .post(Uri.parse('http://192.168.100.6/edukasiDb/register.php'), body: {
-      "username": txtUsername.text,
-      "email": txtEmail.text,
-      "password": txtPassword.text,
-      "fullname": txtFullName.text,
-    });
+  // Definisi regex untuk memeriksa format email
+  RegExp emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
 
-    if (response.statusCode == 200) {
-      return true;
-    } else {
-      return false;
+  Future<int> _register() async {
+    try {
+      final response = await http.post(
+        Uri.parse('http://192.168.100.6/edukasiDb/register.php'),
+        body: {
+          "username": txtUsername.text,
+          "email": txtEmail.text,
+          "password": txtPassword.text,
+          "fullname": txtFullName.text,
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final responseData = jsonDecode(response.body);
+        final registerStatus = responseData['value'];
+
+        return registerStatus ?? 0;
+      } else {
+        return 0;
+      }
+    } catch (e) {
+      print(e);
+      return 0;
     }
   }
 
@@ -99,7 +116,12 @@ class _PageRegisterState extends State<PageRegister> {
                         fontSize: 12.0,
                       ),
                       validator: (val) {
-                        return val!.isEmpty ? "Tidak Boleh kosong" : null;
+                        if (val!.isEmpty) {
+                          return "Tidak Boleh kosong";
+                        } else if (!emailRegex.hasMatch(val)) {
+                          return "ex: ex@mail.com";
+                        }
+                        return null;
                       },
                       controller: txtEmail,
                       decoration: InputDecoration(
@@ -126,27 +148,41 @@ class _PageRegisterState extends State<PageRegister> {
                     MaterialButton(
                       onPressed: () {
                         if (keyForm.currentState?.validate() == true) {
-                          _register().then((registerSuccess) {
-                            if (registerSuccess) {
-                              // Registrasi berhasil, lakukan tindakan yang sesuai
+                          _register().then((registerStatus) {
+                            if (registerStatus == 1) {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
-                                  content: Text('Registration successful!'),
+                                  content: Text('Berhasil didaftarkan!'),
                                   backgroundColor: Colors.green,
                                 ),
                               );
-                              // Misalnya, navigasi ke halaman beranda setelah registrasi berhasil
-                              Navigator.pushReplacementNamed(context, '/home');
-                            } else {
-                              // Registrasi gagal, tampilkan pesan kesalahan
+                              Navigator.pushReplacementNamed(
+                                  context, '/PageLogin');
+                            } else if (registerStatus == 2) {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
                                   content: Text(
-                                      'Registration failed. Please try again.'),
+                                      'Username atau email telah digunakan!'),
                                   backgroundColor: Colors.red,
                                 ),
                               );
-                            }
+                            } else if (registerStatus == 0) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text('Gagal didaftarkan'),
+                                  backgroundColor: Colors.deepOrange,
+                                ),
+                              );
+                            } else {}
+                          }).catchError((error) {
+                            print("Error during login: $error");
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                    'An error occurred during login. Please try again later.'),
+                                backgroundColor: Colors.red,
+                              ),
+                            );
                           });
                         }
                       },
@@ -157,32 +193,32 @@ class _PageRegisterState extends State<PageRegister> {
                     SizedBox(
                       height: 10,
                     ),
-                    TextButton(
-                      onPressed: () {
-                        Navigator.pushAndRemoveUntil(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => PageLogin()),
-                            (route) => false);
-                      },
-                      style: ButtonStyle(
-                        overlayColor: MaterialStateProperty.resolveWith<Color>(
-                            (Set<MaterialState> states) {
-                          if (states.contains(MaterialState.pressed)) {
-                            // Warna ketika teks ditekan
-                            return Colors
-                                .transparent; // Misalnya, transparent untuk menghilangkan warna overlay
-                          }
-                          // Warna default
-                          return Colors.transparent;
-                        }),
-                      ),
-                      child: Text(
-                        'Sudah Punya Akun? Silahkan Login', // Teks yang dapat diklik
+                    RichText(
+                      text: TextSpan(
+                        text: 'Sudah Punya Akun? ',
                         style: TextStyle(
                           fontSize: 11.0,
-                          color: Colors.blue, // Warna teks
+                          color: Colors.black,
                         ),
+                        children: <TextSpan>[
+                          TextSpan(
+                            text:
+                                'Silahkan Login',
+                            style: TextStyle(
+                              fontSize: 11.0,
+                              color: Colors.blue, // Warna teks kedua
+                            ),
+                            // event handler jika teks kedua ditekan
+                            recognizer: TapGestureRecognizer()
+                              ..onTap = () {
+                                Navigator.pushAndRemoveUntil(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => PageLogin()),
+                                    (route) => false);
+                              },
+                          ),
+                        ],
                       ),
                     ),
                   ],
