@@ -4,8 +4,10 @@ import 'package:edukasiapp_tim2/berita/PageDetailBerita.dart';
 import 'package:edukasiapp_tim2/berita/PageSearchBerita.dart';
 import 'package:edukasiapp_tim2/gallery/PageGallery.dart';
 import 'package:edukasiapp_tim2/model/ModelBerita.dart';
+import 'package:edukasiapp_tim2/model/ModelUser.dart';
 import 'package:edukasiapp_tim2/screen_page/page_list_pegawai.dart';
 import 'package:edukasiapp_tim2/screen_page/page_login.dart';
+import 'package:edukasiapp_tim2/screen_page/page_profil.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -46,6 +48,8 @@ class PageUtama extends StatefulWidget {
 
 class _PageUtamaState extends State<PageUtama> {
   String? userName;
+  String? userFull;
+  String? userEmail;
 
   Future<bool> _checkLoginStatus() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -56,11 +60,20 @@ class _PageUtamaState extends State<PageUtama> {
   @override
   void initState() {
     super.initState();
-    _checkLoginStatus().then((isLoggedIn) {
-      // Jika tidak login, arahkan ke halaman login
-      if (!isLoggedIn) {
-        Navigator.pushReplacementNamed(context, '/PageLogin');
-      }
+    // _checkLoginStatus().then((isLoggedIn) {
+    //   if (!isLoggedIn) {
+    //     Navigator.pushReplacementNamed(context, '/PageLogin');
+    //   }
+    // });
+    getUsername();
+  }
+
+  Future<void> getUsername() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      userName = prefs.getString('username');
+      userFull = prefs.getString('fullname');
+      userEmail = prefs.getString('email');
     });
   }
 
@@ -98,59 +111,58 @@ class _PageUtamaState extends State<PageUtama> {
             ),
           ],
         ),
-        drawer: SizedBox(
-          width: 200,
-          child: Drawer(
-            child: ListView(
-              children: [
-                const UserAccountsDrawerHeader(
-                  accountName: Text('Ahmad Givantri Haykal'),
-                  accountEmail: Text('haykalhaykal@gmail.com'),
-                  currentAccountPicture: CircleAvatar(
-                    radius: 55,
-                    child: Icon(
-                      Icons.person,
-                      color: Colors.green,
-                      size: 65,
-                    ),
+        drawer: Drawer(
+          child: ListView(
+            padding: EdgeInsets.zero,
+            children: <Widget>[
+              UserAccountsDrawerHeader(
+                accountName: Text(userName ?? ''),
+                accountEmail: Text(userFull ?? ''),
+                currentAccountPicture: const CircleAvatar(
+                  backgroundColor: Colors.white,
+                  child: Icon(
+                    Icons.person,
+                    color: Colors.green,
+                    size: 50,
                   ),
                 ),
-                ListTile(
-                  title: Text("Info Profile"),
-                  onTap: () {},
-                ),
-                ListTile(
-                  title: const Text("Data Pegawai"),
-                  onTap: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => PageListPegawai()));
-                  },
-                ),
-                ListTile(
-                  title: const Text("Gallery Foto"),
-                  onTap: () {
-                    Navigator.push(context,
-                        MaterialPageRoute(builder: (context) => GalleryPage()));
-                  },
-                ),
-                ListTile(
-                  leading:
-                      Icon(Icons.exit_to_app), // Ikon "exit" pada sisi kiri
-                  title: Text('Logout'), // Teks untuk logout
-                  onTap: () async {
-                    // Navigator.pushAndRemoveUntil(
-                    //     context,
-                    //     MaterialPageRoute(builder: (context) => PageLogin()),
-                    //     (route) => false);
-                    await _logout(context);
-                  },
-                ),
-              ],
-            ),
+              ),
+              ListTile(
+                title: Text("Info Profile"),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => PageProfil()),
+                  );
+                },
+              ),
+              ListTile(
+                title: const Text("Data Pegawai"),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => PageListPegawai()),
+                  );
+                },
+              ),
+              ListTile(
+                title: const Text("Gallery Foto"),
+                onTap: () {
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => GalleryPage()));
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.exit_to_app),
+                title: Text('Logout'),
+                onTap: () async {
+                  await _logout(context);
+                },
+              ),
+            ],
           ),
         ),
+
         body: Padding(
             padding: EdgeInsets.all(8.0),
             child: Center(
@@ -220,7 +232,7 @@ class _PageUtamaState extends State<PageUtama> {
                   }),
             )));
   }
-  
+
   Future<void> _logout(BuildContext context) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.remove('isLoggedIn');
@@ -232,4 +244,3 @@ class _PageUtamaState extends State<PageUtama> {
     );
   }
 }
-

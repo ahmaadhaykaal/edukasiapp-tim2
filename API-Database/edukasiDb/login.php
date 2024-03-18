@@ -5,26 +5,38 @@ header("Access-Control-Allow-Origin: *");
 
 include 'koneksi.php';
 
-if($_SERVER['REQUEST_METHOD'] == "POST") {
-	$response = array();
-	$username = $_POST['username'];
-	$password = md5($_POST['password']);
+$username = $_POST['username'];
+$password = md5($_POST['password']);
 
-	$cek = "SELECT * FROM users WHERE username = '$username' AND password = '$password'";
-	$result = mysqli_fetch_array(mysqli_query($koneksi, $cek));
+$query = "SELECT * FROM users WHERE username = '$username' AND password = '$password'";
+$result = mysqli_query($koneksi, $query);
 
-	if(isset($result)){
-		$response['value'] = 1;
-		$response['message'] = "berhasil login";
-		$response['username'] = $result['username'];
-		$response['fullname'] = $result['fullname'];
-		$response['id'] = $result['id'];
-		echo json_encode($response);
-	} else {
-		$response['value'] = 0;
-		$response['message'] = "Gagal login";
-		echo json_encode($response);
-	}
+if ($result) {
+    $row_count = mysqli_num_rows($result);
+
+    if ($row_count > 0) {
+        $response = array(
+            'status' => 'success',
+            'message' => 'Login berhasil',
+            'data' => mysqli_fetch_assoc($result)
+
+        );
+    } else {
+        $response = array(
+            'status' => 'failed',
+            'message' => 'username atau password salah'
+        );
+    }
+} else {
+    $response = array(
+        'status' => 'failed',
+        'message' => 'Terjadi kesalahan saat melakukan query'
+    );
 }
+
+header('Content-Type: application/json');
+echo json_encode($response);
+
+mysqli_close($koneksi);
 
 ?>

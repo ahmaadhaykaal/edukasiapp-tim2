@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:edukasiapp_tim2/main.dart';
 import 'package:edukasiapp_tim2/screen_page/page_register.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -17,33 +18,81 @@ class _PageLoginState extends State<PageLogin> {
   TextEditingController txtUsername = TextEditingController();
   TextEditingController txtPassword = TextEditingController();
   GlobalKey<FormState> keyForm = GlobalKey<FormState>();
+  bool isLoading = false;
 
-  Future<int> _login() async {
+  Future<void> _login() async {
+    setState(() {
+      isLoading = true;
+    });
+
+    final username = txtUsername.text;
+    final password = txtPassword.text;
+
     try {
       final response = await http.post(
         Uri.parse('http://192.168.100.6/edukasiDb/login.php'),
         body: {
-          "username": txtUsername.text,
-          "password": txtPassword.text,
+          "username": username,
+          "password": password,
         },
       );
 
       if (response.statusCode == 200) {
-        final responseData = jsonDecode(response.body);
-        final loginStatus = responseData['value'];
+        final Map<String, dynamic> responseData = json.decode(response.body);
+        if (responseData['status'] == 'success') {
+          SharedPreferences prefs = await SharedPreferences.getInstance();
+          prefs.setString('username', txtUsername.text);
+          prefs.setString('password', txtPassword.text);
+          prefs.setString('email', responseData['data']['email']);
+          prefs.setString('fullname', responseData['data']['fullname']);
+          prefs.setString('id', responseData['data']['id']);
 
-        if (loginStatus == 1) {
-        SharedPreferences prefs = await SharedPreferences.getInstance();
-        await prefs.setBool('isLoggedIn', true);
-      }
-
-        return loginStatus ?? 0;
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => PageUtama()),
+          );
+        } else {
+          showDialog(
+            context: context,
+            builder: (context) {
+              return AlertDialog(
+                title: Text('Login Gagal'),
+                content: Text('Username atau Password salah.'),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: Text('OK'),
+                  ),
+                ],
+              );
+            },
+          );
+        }
       } else {
-        return 0;
+        throw Exception('Failed to login. Status code: ${response.statusCode}');
       }
-    } catch (e) {
-        print(e);
-        return 0;
+    } catch (error) {
+      print('Error: $error');
+
+      showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text('Error'),
+            content: Text('Terjadi kesalahan saat melakukan login.'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text('OK'),
+              ),
+            ],
+          );
+        },
+      );
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
     }
   }
 
@@ -55,13 +104,6 @@ class _PageLoginState extends State<PageLogin> {
       //     // title: Text('Login Form'),
       //     ),
       body: Container(
-        // decoration: BoxDecoration(
-        //     image: DecorationImage(
-        //       image: AssetImage("assets/bgapp.jpg"),
-        //       fit: BoxFit.cover,
-        //     ),
-        //   ),
-        // color: Colors.blueGrey,
         color: Colors.pink.withOpacity(0.5),
         child: Center(
           child: Card(
@@ -119,34 +161,14 @@ class _PageLoginState extends State<PageLogin> {
                         height: 25,
                       ),
                       MaterialButton(
-                        onPressed: () {
-                          if (keyForm.currentState?.validate() == true) {
-                            _login().then((loginStatus) {
-                              if (loginStatus == 1) {
-                                Navigator.pushReplacementNamed(
-                                    context, '/PageUtama');
-                              } else {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(
-                                        'Login failed. Please check your credentials.'),
-                                    backgroundColor: Colors.deepOrange,
-                                  ),
-                                );
-                              }
-                            }).catchError((error) {
-                              print("Error during login: $error");
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(
-                                      'An error occurred during login. Please try again later.'),
-                                  backgroundColor: Colors.red,
-                                ),
-                              );
-                            });
-                          }
-                        },
-                        child: Text('Login'),
+                        onPressed: isLoading ? null : () => _login(),
+                        child: isLoading
+                            ? CircularProgressIndicator()
+                            : Text(
+                                'Login',
+                                style: TextStyle(fontSize: 16),
+                              ),
+                        // child: Text('Login'),
                         color: Colors.pink,
                         textColor: Colors.white,
                       ),
@@ -154,33 +176,32 @@ class _PageLoginState extends State<PageLogin> {
                         height: 10,
                       ),
                       RichText(
-                      text: TextSpan(
-                        text: 'Belum Punya Akun? ',
-                        style: TextStyle(
-                          fontSize: 11.0,
-                          color: Colors.black,
-                        ),
-                        children: <TextSpan>[
-                          TextSpan(
-                            text:
-                                'Silahkan Register',
-                            style: TextStyle(
-                              fontSize: 11.0,
-                              color: Colors.blue, // Warna teks kedua
-                            ),
-                            // event handler jika teks kedua ditekan
-                            recognizer: TapGestureRecognizer()
-                              ..onTap = () {
-                                Navigator.pushAndRemoveUntil(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) => PageRegister()),
-                                    (route) => false);
-                              },
+                        text: TextSpan(
+                          text: 'Belum Punya Akun? ',
+                          style: TextStyle(
+                            fontSize: 11.0,
+                            color: Colors.black,
                           ),
-                        ],
+                          children: <TextSpan>[
+                            TextSpan(
+                              text: 'Silahkan Register',
+                              style: TextStyle(
+                                fontSize: 11.0,
+                                color: Colors.blue, // Warna teks kedua
+                              ),
+                              // event handler jika teks kedua ditekan
+                              recognizer: TapGestureRecognizer()
+                                ..onTap = () {
+                                  Navigator.pushAndRemoveUntil(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) => PageRegister()),
+                                      (route) => false);
+                                },
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
                     ],
                   ),
                 ),

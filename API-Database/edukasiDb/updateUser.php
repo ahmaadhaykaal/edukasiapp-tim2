@@ -8,26 +8,26 @@
   $id = $_POST['id'];
   $username = $_POST['username'];
   $fullname = $_POST['fullname'];
+  $email = $_POST['email'];
+  $password = md5($_POST['password']);
 
-  $sql = "UPDATE users SET username = '$username', fullname = '$fullname' WHERE id=$id";
-  $isSuccess = $koneksi->query($sql);
+  $query = "UPDATE users SET username = '$username', email = '$email', password = '$password', fullname = '$fullname' WHERE id=$id";
+  $result = mysqli_query($koneksi, $query);
 
-  if ($isSuccess) {
-
-  	$cek = "SELECT * FROM users WHERE id = $id";
-    $result = mysqli_fetch_array(mysqli_query($koneksi, $cek));
-    $res['is_success'] = true;
-    $res['value'] = 1;
-    $res['message'] = "Berhasil edit user";
-    $res['username'] = $result['username'];
-    $res['fullname'] = $result['fullname'];
-    $res['id'] = $result['id'];
+  if ($result) {
+    $response = array(
+        'status' => 'success',
+        'message' => 'Data berhasil diupdate'
+    );
   } else {
-    $res['is_success'] = false;
-    $res['value'] = 0;
-    $res['message'] = "Gagal edit user";
+      $response = array(
+          'status' => 'failed',
+          'message' => 'Gagal mengupdate data'
+      );
   }
 
-  echo json_encode($res);
+  echo json_encode($response);
+
+  mysqli_close($koneksi);
 
  ?>
