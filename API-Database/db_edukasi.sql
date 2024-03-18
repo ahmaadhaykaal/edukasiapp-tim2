@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 5.2.0
+-- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 13, 2024 at 07:35 AM
--- Server version: 10.4.27-MariaDB
--- PHP Version: 8.1.12
+-- Generation Time: Mar 18, 2024 at 02:58 PM
+-- Server version: 10.4.32-MariaDB
+-- PHP Version: 8.2.12
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -54,6 +54,30 @@ INSERT INTO `berita` (`id`, `judul`, `isi_berita`, `gambar_berita`, `tgl_berita`
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `gallery`
+--
+
+CREATE TABLE `gallery` (
+  `id` int(11) NOT NULL,
+  `gambar` varchar(200) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `gallery`
+--
+
+INSERT INTO `gallery` (`id`, `gambar`) VALUES
+(1, '1.jpg'),
+(2, '2.jpg'),
+(3, '3.jpg'),
+(4, '4.jpg'),
+(5, '5.jpg'),
+(6, '6.jpg'),
+(7, '7.jpg');
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `pegawai`
 --
 
@@ -85,12 +109,10 @@ INSERT INTO `pegawai` (`id`, `nama`, `nobp`, `nohp`, `email`, `tgl_input`) VALUE
 (12, 'Kangkang', '012', '082234567822', 'kang@mail.com', '2024-03-12 15:46:04'),
 (13, 'Froody', '013', '0898232721', 'froo@mail.com', '2024-03-12 15:46:47'),
 (14, 'Kevin Viano', '014', '08231772321', 'kevin@mail.com', '2024-03-12 15:46:47'),
-(15, 'Fandra Octoramonth', '015', '0853874584', 'octo@mail.com', '2024-03-12 15:47:48'),
+(15, 'Fandra', '015', '0853874584', 'octo@mail.com', '2024-03-12 15:47:48'),
 (16, 'Scrodinger Lee', '016', '0823891234', 'lee@mail.com', '2024-03-12 15:48:44'),
 (17, 'Josh Seki', '017', '08121724232', 'josh@mail.com', '2024-03-12 15:48:44'),
-(18, 'Grim Sage', '018', '08321761223', 'grim@mail.com', '2024-03-12 15:50:55'),
-(19, 'Feri Hui', '019', '08123712644', 'hui@mail.com', '2024-03-12 15:50:55'),
-(20, 'Jimmy Lim', '020', '08347242344', 'lim@mail.com', '2024-03-12 15:53:45');
+(18, 'Grim Sage', '018', '08321761223', 'grim@mail.com', '2024-03-12 15:50:55');
 
 -- --------------------------------------------------------
 
@@ -113,7 +135,12 @@ CREATE TABLE `users` (
 
 INSERT INTO `users` (`id`, `username`, `email`, `password`, `fullname`, `tgl_daftar`) VALUES
 (1, 'dila', 'rani@mail.com', '3e09293769927345f70104c89df5c45c', 'fadhilla rahmanisa', '2024-03-12 14:46:00'),
-(2, 'ahmad', 'ahmad@mail.com', '724efe3eda37d5ee757e9d11a121840b', 'ahmad givantri haykal', '2024-03-12 14:46:19');
+(2, 'ahmad', 'ahmad@mail.com', '724efe3eda37d5ee757e9d11a121840b', 'ahmad givantri haykal', '2024-03-12 14:46:19'),
+(3, 'haykal', 'haykal@mail.com', 'd8578edf8458ce06fbc5bb76a58c5ca4', 'Ahmad Givantri Haykal', '2024-03-17 23:53:37'),
+(4, 'budi', 'budi@mail.com', '827ccb0eea8a706c4c34a16891f84e7b', 'budibudi', '2024-03-18 09:56:24'),
+(5, 'haykal1232', 'ahaykal@mail.com', '827ccb0eea8a706c4c34a16891f84e7b', 'ahmad22', '2024-03-18 18:53:55'),
+(6, 'anton', 'anton@mail.com', 'd8578edf8458ce06fbc5bb76a58c5ca4', 'anton sinaga', '2024-03-18 20:29:37'),
+(7, 'cahya', 'monyet@mail.com', '827ccb0eea8a706c4c34a16891f84e7b', 'monyet', '2024-03-18 20:36:42');
 
 --
 -- Indexes for dumped tables
@@ -123,6 +150,12 @@ INSERT INTO `users` (`id`, `username`, `email`, `password`, `fullname`, `tgl_daf
 -- Indexes for table `berita`
 --
 ALTER TABLE `berita`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `gallery`
+--
+ALTER TABLE `gallery`
   ADD PRIMARY KEY (`id`);
 
 --
@@ -148,16 +181,22 @@ ALTER TABLE `berita`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
+-- AUTO_INCREMENT for table `gallery`
+--
+ALTER TABLE `gallery`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+
+--
 -- AUTO_INCREMENT for table `pegawai`
 --
 ALTER TABLE `pegawai`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=32;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=39;
 
 --
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

@@ -22,7 +22,7 @@ class _PageSearchState extends State<PageSearch> {
   }
 
   Future<void> fetchBerita() async {
-    final response = await http.get(Uri.parse('http://192.168.100.6/edukasiDb/getBerita.php'));
+    final response = await http.get(Uri.parse('http://192.168.1.4/edukasiDb/getBerita.php'));
 
     if (response.statusCode == 200) {
       final Map<String, dynamic> responseData = json.decode(response.body);

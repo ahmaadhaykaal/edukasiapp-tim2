@@ -46,12 +46,12 @@ class _PageUpdateProfilState extends State<PageUpdateProfil> {
           children: [
             TextField(
               controller: usernameController,
-              decoration: InputDecoration(labelText: 'Nama'),
+              decoration: InputDecoration(labelText: 'Username'),
             ),
             SizedBox(height: 16.0),
             TextField(
               controller: fullnameController,
-              decoration: InputDecoration(labelText: 'No BP'),
+              decoration: InputDecoration(labelText: 'Nama Lengkap'),
             ),
             SizedBox(height: 16.0),
             TextField(
@@ -116,7 +116,7 @@ class _PageUpdateProfilState extends State<PageUpdateProfil> {
       id = prefs.getString('id');
 
       final response = await http.post(
-        Uri.parse('http://192.168.100.6/edukasiDb/updateUser.php'),
+        Uri.parse('http://192.168.1.4/edukasiDb/updateUser.php'),
         body: {
           'id': id,
           'username': username,
